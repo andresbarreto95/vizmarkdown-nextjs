@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="VizMarkdown Chart">
+    <meta property="og:description" content="Interactive chart created with VizMarkdown">
+    <meta property="og:site_name" content="VizMarkdown">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta http-equiv="X-Frame-Options" content="ALLOW-FROM *">
+    <meta http-equiv="Content-Security-Policy" content="frame-ancestors *">
+    <title>VizMarkdown - Create Charts with Simple Text</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+    <style>
+        .chart-container {
+            position: relative;
+            height: 400px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <h1 class="text-xl font-bold text-gray-900">VizMarkdown</h1>
+                    <span class="ml-2 text-sm text-gray-500">Create charts with simple text</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="dashboardBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
+                        Dashboard
+                    </button>
+                    <button id="createDashboardBtn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
+                        Create Dashboard
+                    </button>
+                    <button id="editorBtn" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors hidden">
+                        Editor
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Editor View -->
+        <div id="editorView">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Input Panel -->
+                <div class="bg-white rounded-lg shadow-sm border p-6">
+                    <h2 class="text-lg font-semibold text-gray-900 mb-4">Chart Definition</h2>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Chart Name</label>
+                            <input type="text" id="chartName" placeholder="My Awesome Chart" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Chart Type</label>
+                            <select id="chartType" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="bar">Bar Chart</option>
+                                <option value="line">Line Chart</option>
+                                <option value="pie">Pie Chart</option>
+                                <option value="doughnut">Doughnut Chart</option>
+                                <option value="radar">Radar Chart</option>
+                                <option value="polarArea">Polar Area Chart</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Chart Title</label>
+                            <input type="text" id="chartTitle" placeholder="Enter chart title" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Labels (comma-separated)</label>
+                            <input type="text" id="chartLabels" placeholder="Q1, Q2, Q3, Q4" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Dataset (comma-separated numbers)</label>
+                            <textarea id="chartDataset" rows="4" placeholder="Series A, 120, 190, 300, 500&#10;Series B, 100, 150, 200, 250" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                        </div>
+                        
+                        <!-- Axis labels -->
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">X-Axis Label</label>
+                                <input type="text" id="xAxisLabel" placeholder="Quarter" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Y-Axis Label</label>
+                                <input type="text" id="yAxisLabel" placeholder="Sales" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                        </div>
+
+                        <!-- Show values toggle -->
+                        <div class="flex items-center space-x-2">
+                            <input type="checkbox" id="showValues" class="h-4 w-4 text-blue-600 border-gray-300 rounded">
+                            <label for="showValues" class="text-sm font-medium text-gray-700">Show Values on Chart</label>
+                        </div>
+
+                        <!-- Bar-specific controls -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Rounded Borders (bar only)</label>
+                            <input type="range" id="roundedBorders" min="0" max="100" value="0" class="w-full">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Space Between Bars (bar only)</label>
+                            <input type="range" id="barSpacing" min="0" max="1" step="0.05" value="0.1" class="w-full">
+                        </div>
+                        
+                        <!-- Font Options -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Font</label>
+                            <div class="flex items-center space-x-2">
+                                <select id="fontFamily" class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="'Inter', sans-serif">Inter</option>
+                                    <option value="'Roboto', sans-serif">Roboto</option>
+                                    <option value="Arial, sans-serif">Arial</option>
+                                </select>
+                                <button id="fontBold" title="Bold" class="px-3 py-2 border border-gray-300 rounded-md text-sm font-semibold">B</button>
+                                <button id="fontItalic" title="Italic" class="px-3 py-2 border border-gray-300 rounded-md text-sm italic">I</button>
+                            </div>
+                        </div>
+
+                        <!-- Chart Colors -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Chart Colors</label>
+                            <div class="grid grid-cols-3 gap-2">
+                                <div>
+                                    <label class="block text-xs text-gray-600 mb-1">Chart Area</label>
+                                    <input type="color" id="chartAreaColor" value="#ffffff" class="w-full h-10 border border-gray-300 rounded-md cursor-pointer">
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-gray-600 mb-1">Fill Color</label>
+                                    <input type="color" id="fillColor" value="#36a2eb" class="w-full h-10 border border-gray-300 rounded-md cursor-pointer">
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-gray-600 mb-1">Border Color</label>
+                                    <input type="color" id="borderColor" value="#36a2eb" class="w-full h-10 border border-gray-300 rounded-md cursor-pointer">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Advanced Configuration (Optional)</label>
+                            <textarea id="chartConfig" rows="8" placeholder="Additional chart options can be added here in the future..." class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-sm bg-gray-50"></textarea>
+                        </div>
+                        
+                        <div class="flex space-x-3">
+                            <button id="generateBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md font-medium transition-colors">
+                                Generate Chart
+                            </button>
+                            <button id="saveBtn" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-md font-medium transition-colors">
+                                Save Chart
+                            </button>
+                            <button id="clearBtn" class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-md font-medium transition-colors">
+                                Clear
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Preview Panel -->
+                <div class="bg-white rounded-lg shadow-sm border p-6">
+                    <h2 class="text-lg font-semibold text-gray-900 mb-4">Live Preview</h2>
+                    <div class="chart-container">
+                        <canvas id="chartCanvas"></canvas>
+                    </div>
+                    
+                    <!-- Embed Codes -->
+                    <div class="mt-6 space-y-4">
+                        <div class="mb-4">
+                            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 text-yellow-800 text-sm rounded">
+                                <strong>For Notion:</strong> Use the <b>Download as Image</b> button below, then upload the PNG to Notion using the <b>/image</b> block. Notion does not support live embeds from custom web apps.
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Website Embed URL</label>
+                            <div class="flex">
+                                <textarea id="embedUrl" rows="2" readonly class="flex-1 px-3 py-2 border border-gray-300 rounded-l-md bg-gray-50 text-sm font-mono"></textarea>
+                                <button id="copyEmbedBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-r-md text-sm font-medium transition-colors">
+                                    Copy
+                                </button>
+                            </div>
+                            <p class="mt-2 text-sm text-gray-500">Note: For embedding in websites that support iframes. For Notion, use the Download as Image option below.</p>
+                        </div>
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <label class="block text-sm font-medium text-gray-700">Email Static Image</label>
+                                <button id="downloadImageBtn" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-md text-lg font-medium transition-colors">
+                                    Download as Image
+                                </button>
+                            </div>
+                            <p class="mt-2 text-sm text-gray-500">Download the chart as a PNG image to use in emails or other platforms.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard View -->
+        <div id="dashboardView" class="hidden">
+            <div class="bg-white rounded-lg shadow-sm border p-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-6">Saved Charts</h2>
+                
+                <div id="savedChartsList" class="space-y-4">
+                    <!-- Saved charts will be populated here -->
+                </div>
+                
+                <div id="noChartsMessage" class="text-center py-12 text-gray-500">
+                    <p>No saved charts yet. Create your first chart in the editor!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Create Dashboard View -->
+        <div id="createDashboardView" class="hidden">
+            <div class="bg-white rounded-lg shadow-sm border p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-lg font-semibold text-gray-900">Create Dashboard</h2>
+                    <div class="flex space-x-3">
+                        <button id="saveDashboardBtn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
+                            Save Dashboard
+                        </button>
+                        <button id="exportDashboardBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
+                            Export HTML
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Dashboard Configuration -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Dashboard Title</label>
+                        <input type="text" id="dashboardTitle" placeholder="My Analytics Dashboard" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Layout</label>
+                        <select id="dashboardLayout" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="2x2">2x2 Grid</option>
+                            <option value="3x2">3x2 Grid</option>
+                            <option value="2x3">2x3 Grid</option>
+                            <option value="1x4">1x4 Row</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Theme</label>
+                        <select id="dashboardTheme" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="light">Light</option>
+                            <option value="dark">Dark</option>
+                            <option value="blue">Blue</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Chart Selection -->
+                <div class="mb-6">
+                    <h3 class="text-md font-medium text-gray-900 mb-4">Select Charts for Dashboard</h3>
+                    <div id="chartSelectionGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <!-- Chart selection cards will be populated here -->
+                    </div>
+                    <div id="noChartsForDashboard" class="text-center py-8 text-gray-500">
+                        <p>No saved charts available. Create some charts first!</p>
+                    </div>
+                </div>
+                
+                <!-- Dashboard Preview -->
+                <div class="mb-6">
+                    <h3 class="text-md font-medium text-gray-900 mb-4">Dashboard Preview</h3>
+                    <div id="dashboardPreview" class="border border-gray-200 rounded-lg p-4 min-h-96 bg-gray-50">
+                        <div id="dashboardGrid" class="grid grid-cols-2 gap-4">
+                            <!-- Dashboard charts will be rendered here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed top-4 right-4 bg-green-600 text-white px-6 py-3 rounded-md shadow-lg transform translate-x-full transition-transform duration-300 z-50">
+        <span id="toastMessage"></span>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        let currentChart = null;
+        const savedCharts = JSON.parse(localStorage.getItem('vizmarkdown_charts') || '[]');
+        const savedDashboards = JSON.parse(localStorage.getItem('vizmarkdown_dashboards') || '[]');
+        let selectedCharts = [];
+        let dashboardCharts = [];
+
+        // Initialize Chart.js
+        Chart.register(ChartDataLabels);
+        
+        // Get form elements
+        const chartNameInput = document.getElementById('chartName');
+        const chartTypeSelect = document.getElementById('chartType');
+        const chartTitleInput = document.getElementById('chartTitle');
+        const chartLabelsInput = document.getElementById('chartLabels');
+        const chartDatasetInput = document.getElementById('chartDataset');
+        const xAxisLabelInput = document.getElementById('xAxisLabel');
+        const yAxisLabelInput = document.getElementById('yAxisLabel');
+        const showValuesCheckbox = document.getElementById('showValues');
+        const roundedBordersInput = document.getElementById('roundedBorders');
+        const barSpacingInput = document.getElementById('barSpacing');
+        const fontFamilySelect = document.getElementById('fontFamily');
+        const fontBoldBtn = document.getElementById('fontBold');
+        const fontItalicBtn = document.getElementById('fontItalic');
+        const chartAreaColorInput = document.getElementById('chartAreaColor');
+        const fillColorInput = document.getElementById('fillColor');
+        const borderColorInput = document.getElementById('borderColor');
+        const generateBtn = document.getElementById('generateBtn');
+        const saveBtn = document.getElementById('saveBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const dashboardBtn = document.getElementById('dashboardBtn');
+        const createDashboardBtn = document.getElementById('createDashboardBtn');
+        const editorBtn = document.getElementById('editorBtn');
+        const editorView = document.getElementById('editorView');
+        const dashboardView = document.getElementById('dashboardView');
+        const createDashboardView = document.getElementById('createDashboardView');
+        const savedChartsList = document.getElementById('savedChartsList');
+        const noChartsMessage = document.getElementById('noChartsMessage');
+        const dashboardTitle = document.getElementById('dashboardTitle');
+        const dashboardLayout = document.getElementById('dashboardLayout');
+        const dashboardTheme = document.getElementById('dashboardTheme');
+        const chartSelectionGrid = document.getElementById('chartSelectionGrid');
+        const noChartsForDashboard = document.getElementById('noChartsForDashboard');
+        const dashboardPreview = document.getElementById('dashboardPreview');
+        const dashboardGrid = document.getElementById('dashboardGrid');
+        const saveDashboardBtn = document.getElementById('saveDashboardBtn');
+        const exportDashboardBtn = document.getElementById('exportDashboardBtn');
+        const imageCode = document.getElementById('imageCode');
+        const copyImageBtn = document.getElementById('copyImageBtn');
+        const toast = document.getElementById('toast');
+        const toastMessage = document.getElementById('toastMessage');
+        const downloadImageBtn = document.getElementById('downloadImageBtn');
+
+        // Add input event listeners for auto-generation
+        const inputs = [
+            chartNameInput, chartTypeSelect, chartTitleInput, chartLabelsInput,
+            chartDatasetInput, xAxisLabelInput, yAxisLabelInput, showValuesCheckbox,
+            roundedBordersInput, barSpacingInput, fontFamilySelect,
+            chartAreaColorInput, fillColorInput, borderColorInput
+        ];
+
+        inputs.forEach(input => {
+            input.addEventListener('input', debounce(generateChart, 500));
+        });
+
+        // Render saved charts in dashboard view
+        function renderSavedCharts() {
+            if (savedCharts.length === 0) {
+                savedChartsList.innerHTML = '';
+                noChartsMessage.classList.remove('hidden');
+            } else {
+                noChartsMessage.classList.add('hidden');
+                savedChartsList.innerHTML = savedCharts.map(chart => `
+                    <div class="bg-white rounded-lg shadow-sm border p-4">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="font-medium text-gray-900">${chart.name || 'Untitled Chart'}</h3>
+                                <p class="text-sm text-gray-500 mt-1">Created: ${new Date(chart.createdAt).toLocaleDateString()}</p>
+                            </div>
+                            <button class="delete-chart-btn text-red-600 hover:text-red-700" data-chart-id="${chart.id}">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="chart-container" style="height: 200px;">
+                            <canvas id="savedChart${chart.id}"></canvas>
+                        </div>
+                    </div>
+                `).join('');
+
+                // Render charts
+                savedCharts.forEach(chart => {
+                    const canvas = document.getElementById(`savedChart${chart.id}`);
+                    if (canvas) {
+                        new Chart(canvas, generateChartConfig(chart.chartData));
+                    }
+                });
+
+                // Add delete button handlers
+                document.querySelectorAll('.delete-chart-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const chartId = this.dataset.chartId;
+                        const chartIndex = savedCharts.findIndex(c => c.id === chartId);
+                        if (chartIndex > -1) {
+                            savedCharts.splice(chartIndex, 1);
+                            localStorage.setItem('vizmarkdown_charts', JSON.stringify(savedCharts));
+                            renderSavedCharts();
+                            showToast('Chart deleted successfully!');
+                        }
+                    });
+                });
+            }
+        }
+
+        // Function to get chart data from form
+        function getChartData() {
+            const labels = chartLabelsInput.value.split(',').map(label => label.trim());
+            const datasetLines = chartDatasetInput.value.split('\n')
+                .filter(line => line.trim())
+                .map(line => line.split(',').map(val => val.trim()));
+            
+            const datasets = datasetLines.map((values, index) => {
+                const label = values[0];
+                const data = values.slice(1).map(Number);
+                const color = fillColorInput.value;
+                
+                return {
+                    label: label,
+                    data: data,
+                    backgroundColor: color,
+                    borderColor: borderColorInput.value,
+                    borderRadius: parseInt(roundedBordersInput.value),
+                    barPercentage: 1 - parseFloat(barSpacingInput.value)
+                };
+            });
+
+            return {
+                type: chartTypeSelect.value,
+                data: {
+                    labels: labels,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: !!chartTitleInput.value,
+                            text: chartTitleInput.value,
+                            font: {
+                                family: fontFamilySelect.value,
+                                weight: fontBoldBtn.classList.contains('bg-gray-200') ? 'bold' : 'normal',
+                                style: fontItalicBtn.classList.contains('bg-gray-200') ? 'italic' : 'normal'
+                            }
+                        },
+                        datalabels: {
+                            display: showValuesCheckbox.checked,
+                            color: '#666',
+                            font: {
+                                weight: 'bold'
+                            },
+                            formatter: (value) => value.toLocaleString()
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: !!xAxisLabelInput.value,
+                                text: xAxisLabelInput.value
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: !!yAxisLabelInput.value,
+                                text: yAxisLabelInput.value
+                            },
+                            beginAtZero: true
+                        }
+                    }
+                }
+            };
+        }
+
+        // Function to generate chart
+        function generateChart() {
+            try {
+                const canvas = document.getElementById('chartCanvas');
+                const ctx = canvas.getContext('2d');
+                
+                // Destroy existing chart if any
+                if (currentChart) {
+                    currentChart.destroy();
+                }
+                
+                // Create new chart
+                const chartConfig = getChartData();
+                currentChart = new Chart(ctx, chartConfig);
+                
+                // Set canvas background
+                canvas.style.backgroundColor = chartAreaColorInput.value;
+
+                // Generate and update embed URL
+                const chartData = {
+                    name: chartNameInput.value,
+                    config: chartConfig
+                };
+                const baseUrl = window.location.origin + window.location.pathname;
+                const compressedData = btoa(JSON.stringify(chartData));
+                const embedUrl = `${baseUrl}?embed=true&data=${encodeURIComponent(compressedData)}`;
+                
+                // Update embed URL field
+                const embedUrlField = document.getElementById('embedUrl');
+                if (embedUrlField) {
+                    embedUrlField.value = embedUrl;
+                }
+                
+                showToast('Chart updated successfully!');
+            } catch (error) {
+                console.error('Error generating chart:', error);
+                showToast('Error generating chart: ' + error.message, 'error');
+            }
+        }
+
+        // Button click handlers
+        generateBtn.addEventListener('click', generateChart);
+
+        saveBtn.addEventListener('click', function() {
+            if (!currentChart) {
+                showToast('Please generate a chart first', 'error');
+                return;
+            }
+
+            const chartData = {
+                id: Date.now().toString(),
+                name: chartNameInput.value || 'Untitled Chart',
+                chartData: getChartData(),
+                createdAt: new Date().toISOString()
+            };
+
+            savedCharts.push(chartData);
+            localStorage.setItem('vizmarkdown_charts', JSON.stringify(savedCharts));
+            showToast('Chart saved successfully!');
+        });
+
+        clearBtn.addEventListener('click', function() {
+            chartNameInput.value = '';
+            chartTitleInput.value = '';
+            chartLabelsInput.value = '';
+            chartDatasetInput.value = '';
+            xAxisLabelInput.value = '';
+            yAxisLabelInput.value = '';
+            showValuesCheckbox.checked = false;
+            roundedBordersInput.value = 0;
+            barSpacingInput.value = 0.1;
+            fontFamilySelect.value = "'Inter', sans-serif";
+            fontBoldBtn.classList.remove('bg-gray-200');
+            fontItalicBtn.classList.remove('bg-gray-200');
+            chartAreaColorInput.value = '#ffffff';
+            fillColorInput.value = '#36a2eb';
+            borderColorInput.value = '#36a2eb';
+            
+            generateChart();
+            showToast('Form cleared!');
+        });
+
+        // Navigation handlers
+        dashboardBtn.addEventListener('click', function() {
+            editorView.classList.add('hidden');
+            createDashboardView.classList.add('hidden');
+            dashboardView.classList.remove('hidden');
+            editorBtn.classList.remove('hidden');
+        });
+
+        createDashboardBtn.addEventListener('click', function() {
+            editorView.classList.add('hidden');
+            dashboardView.classList.add('hidden');
+            createDashboardView.classList.remove('hidden');
+            editorBtn.classList.remove('hidden');
+        });
+
+        editorBtn.addEventListener('click', function() {
+            dashboardView.classList.add('hidden');
+            createDashboardView.classList.add('hidden');
+            editorView.classList.remove('hidden');
+            editorBtn.classList.add('hidden');
+        });
+
+        // Font style button handlers
+        fontBoldBtn.addEventListener('click', function() {
+            this.classList.toggle('bg-gray-200');
+            generateChart();
+        });
+
+        fontItalicBtn.addEventListener('click', function() {
+            this.classList.toggle('bg-gray-200');
+            generateChart();
+        });
+
+        // Copy embed URL functionality
+        document.getElementById('copyEmbedBtn').addEventListener('click', async function() {
+            const embedUrlField = document.getElementById('embedUrl');
+            if (!embedUrlField.value) {
+                showToast('Generate a chart first', 'error');
+                return;
+            }
+            try {
+                await navigator.clipboard.writeText(embedUrlField.value);
+                showToast('Embed URL copied to clipboard!');
+            } catch (err) {
+                // Fallback for older browsers
+                embedUrlField.select();
+                document.execCommand('copy');
+                showToast('Embed URL copied to clipboard!');
+            }
+        });
+
+        // Download image functionality
+        document.getElementById('downloadImageBtn').addEventListener('click', function() {
+            if (!currentChart) {
+                showToast('Please generate a chart first', 'error');
+                return;
+            }
+            const canvas = document.getElementById('chartCanvas');
+            const chartName = chartNameInput.value || 'chart';
+            const link = document.createElement('a');
+            link.download = `${chartName}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+            showToast('Chart downloaded successfully!');
+        });
+
+        // Handle embed mode
+        function handleEmbedMode() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const isEmbed = urlParams.get('embed') === 'true';
+            const embedData = urlParams.get('data');
+
+            if (isEmbed && embedData) {
+                try {
+                    // Clean the body
+                    document.body.innerHTML = '';
+                    document.body.style = 'margin:0;padding:0;background:transparent;';
+                    
+                    // Create minimal chart container
+                    const container = document.createElement('div');
+                    container.style = 'width:100%;height:100vh;display:flex;align-items:center;justify-content:center;';
+                    
+                    const canvas = document.createElement('canvas');
+                    canvas.id = 'embeddedChart';
+                    container.appendChild(canvas);
+                    document.body.appendChild(container);
+
+                    // Parse and render chart
+                    const chartData = JSON.parse(atob(decodeURIComponent(embedData)));
+                    new Chart(canvas, chartData.config);
+                } catch (error) {
+                    console.error('Error in embed mode:', error);
+                    document.body.innerHTML = `<div style="color:red;padding:20px;">Error loading chart: ${error.message}</div>`;
+                }
+            }
+        }
+
+        // Toast notification function
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            toast.className = `fixed top-4 right-4 px-6 py-3 rounded-md shadow-lg transform translate-x-full transition-transform duration-300 z-50 ${
+                type === 'success' ? 'bg-green-600 text-white' : 'bg-red-600 text-white'
+            }`;
+            
+            toastMessage.textContent = message;
+            
+            // Show toast
+            setTimeout(() => toast.classList.remove('translate-x-full'), 100);
+            
+            // Hide toast
+            setTimeout(() => toast.classList.add('translate-x-full'), 3000);
+        }
+
+        // Debounce function
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // Initialize chart on load
+        generateChart();
+        handleEmbedMode();
+    });
+    </script>
+</body>
+</html>
