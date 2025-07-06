@@ -1,3 +1,7 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+
 export default function ChartForm({ chartData, handleChange, generateChart }) {
   return (
     <div className="bg-white rounded-lg shadow-sm border p-6">

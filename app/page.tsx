@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import ChartForm from '../components/ChartForm';
 import ChartPreview from '../components/ChartPreview';
 
@@ -85,6 +85,12 @@ export default function Home() {
 
   const [chartConfig, setChartConfig] = useState({});
 
+  useEffect(() => {
+    // This code will only run in the browser after the page loads
+    const config = generateChartConfig(chartData);
+    setChartConfig(config);
+  }, [chartData]); // The dependency array tells React to re-run this when chartData changes
+
   const handleFormChange = (e: any) => {
     const { id, value, type, checked } = e.target;
     setChartData(prevData => ({
@@ -102,7 +108,7 @@ export default function Home() {
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <ChartForm chartData={chartData} handleChange={handleFormChange} generateChart={generateChart} />
-        <ChartPreview chartConfig={chartConfig} generateChart={generateChart} chartData={chartData} />
+        <ChartPreview chartConfig={chartConfig} chartData={chartData} />
       </div>
     </main>
   );

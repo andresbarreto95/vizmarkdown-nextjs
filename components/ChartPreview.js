@@ -34,7 +34,7 @@ ChartJS.register(
   ChartDataLabels
 );
 
-export default function ChartPreview({ chartConfig, generateChart, chartData }) {
+export default function ChartPreview({ chartConfig, chartData }) {
   const [embedUrl, setEmbedUrl] = useState('');
 
   // Generate embed URL when chartData changes
